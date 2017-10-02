@@ -3,7 +3,7 @@ $BackupResourceGroup = $env:BackupResourceGroup
 $StorageAccountName = $env:StorageAccountName
 $ResourceURI = "https://management.azure.com/"
 $BlobContainers = "staging","live"
-$KeepDays = "180"
+$KeepDays = "-180"
 
 #Get access token
 function Get-AccessToken 
@@ -38,7 +38,7 @@ $StorageAccountKey = Get-StorageAccountKey -Subscription $BackupSubsciption -Res
 #Write-Output "DEBUG: StorageAccountKey = $StorageAccountKey"
 
 #Get subfolders
-function Delete-Backups 
+function Test-Backups 
 {
 Param(
     [string] $StorageAccountName,
@@ -49,9 +49,9 @@ Param(
     foreach ($_ in $Container) 
         {
         Write-Output $_
-        Get-AzureStorageBlob -Context $ContextSrc -Container $_ | Where-Object {$_.LastModified -LT (get-date).AddDays(-$KeepDays)} | Remove-AzureStorageBlob -WhatIf -Verbose
+        Get-AzureStorageBlob -Context $ContextSrc -Container $_ | Where-Object {$_.LastModified -LT (get-date).AddDays(-$KeepDays)}
         }
 }
 
 #Delete backups
-Delete-Backups -StorageAccountName $StorageAccountName -StorageAccountKey $StorageAccountKey -Container $BlobContainers
+Test-Backups -StorageAccountName $StorageAccountName -StorageAccountKey $StorageAccountKey -Container $BlobContainers
