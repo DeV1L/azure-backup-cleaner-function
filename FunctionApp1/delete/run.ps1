@@ -3,7 +3,7 @@ $BackupResourceGroup = $env:BackupResourceGroup
 $StorageAccountName = $env:StorageAccountName
 $ResourceURI = "https://management.azure.com/"
 $BlobContainers = "staging","live"
-$KeepDays = "-8"
+$KeepDays = "180"
 
 #Get access token
 function Get-AccessToken 

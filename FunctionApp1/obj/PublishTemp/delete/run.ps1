@@ -3,7 +3,7 @@ $BackupResourceGroup = $env:BackupResourceGroup
 $StorageAccountName = $env:StorageAccountName
 $ResourceURI = "https://management.azure.com/"
 $BlobContainers = "staging","live"
-$KeepDays = "180"
+$KeepDays = "-8"
 
 #Get access token
 function Get-AccessToken 
@@ -48,10 +48,15 @@ Param(
     $ContextSrc = New-AzureStorageContext $StorageAccountName -StorageAccountKey $StorageAccountKey
     foreach ($_ in $Container) 
         {
-        Write-Output $_
-        Get-AzureStorageBlob -Context $ContextSrc -Container $_ | Where-Object {$_.LastModified -LT (get-date).AddDays(-$KeepDays)} | Remove-AzureStorageBlob -WhatIf -Verbose
+        Write-Output "Container: $_"
+        $DeletedBlobs = Get-AzureStorageBlob -Context $ContextSrc -Container $_ | Where-Object {$_.LastModified -LT (get-date).AddDays(-$KeepDays)}
+        Write-Output "DELETING:" $DeletedBlobs.Name
+        $DeletedBlobs | Remove-AzureStorageBlob
         }
 }
 
 #Delete backups
-Delete-Backups -StorageAccountName $StorageAccountName -StorageAccountKey $StorageAccountKey -Container $BlobContainers
+$Result = Delete-Backups -StorageAccountName $StorageAccountName -StorageAccountKey $StorageAccountKey -Container $BlobContainers
+
+Write-Output $Result
+$Result | ConvertTo-Json >> $res
