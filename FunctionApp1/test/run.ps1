@@ -48,8 +48,9 @@ Param(
     $ContextSrc = New-AzureStorageContext $StorageAccountName -StorageAccountKey $StorageAccountKey
     foreach ($_ in $Container) 
         {
-        Write-Output $_
-        Get-AzureStorageBlob -Context $ContextSrc -Container $_ | Where-Object {$_.LastModified -LT (get-date).AddDays(-$KeepDays)}
+        Write-Output "Container: $_"
+        $DeletedBlobs = Get-AzureStorageBlob -Context $ContextSrc -Container $_ | Where-Object {$_.LastModified -LT (get-date).AddDays(-$KeepDays)}
+        Write-Output "DELETING:" $DeletedBlobs.Name
         }
 }
 
