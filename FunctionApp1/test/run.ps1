@@ -16,7 +16,7 @@ $TokenResponse.access_token
 
 #Perform auth
 $AccessToken = Get-AccessToken
-#Write-Output "DEBUG: AccessToken = $AccessToken"
+Write-Output "DEBUG: AccessToken = $AccessToken"
 
 #Get storage account key
 function Get-StorageAccountKey 
@@ -56,3 +56,30 @@ Param(
 
 #Delete backups
 Test-Backups -StorageAccountName $StorageAccountName -StorageAccountKey $StorageAccountKey -Container $BlobContainers
+
+
+##########Key vault
+#Get access token
+function Get-AccessTokenKeyVault 
+{
+$ResourceURI = "https://vault.azure.net"
+$ApiVersion = "2017-09-01"
+$TokenAuthURI = $env:MSI_ENDPOINT + "?resource=$ResourceURI&api-version=$ApiVersion"
+$TokenResponse = Invoke-RestMethod -Method Get -Headers @{"Secret"="$env:MSI_SECRET"} -Uri $TokenAuthURI
+$TokenResponse.access_token
+}
+$AccessTokenKeyVault = Get-AccessTokenKeyVault
+Write-Output "DEBUG: AccessTokenKeyVault = $AccessTokenKeyVault"
+
+function Get-KeyVaultSecret
+{
+Param(
+    [string] $AccessTokenKeyVault
+)
+    $ResourceURI = "https://arkadium.vault.azure.net"
+    $Uri = $ResourceURI + "/secrets/test/?api-version=2016-10-01"
+    $keysResponse = Invoke-RestMethod -Method Get -Headers @{Authorization="Bearer $AccessTokenKeyVault"} -Uri $Uri
+    $keysResponse
+}
+$KeyVaultSecret = (Get-KeyVaultSecret -AccessToken $AccessTokenKeyVault).value
+Write-Output "DEBUG: KeyVaultSecret = $KeyVaultSecret"
