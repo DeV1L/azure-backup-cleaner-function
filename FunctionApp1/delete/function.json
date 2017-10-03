@@ -1,16 +1,17 @@
 ﻿{
-  "disabled": false,
   "bindings": [
     {
       "name": "req",
-      "type": "httpTrigger",
+      "type": "timerTrigger",
       "direction": "in",
-      "authLevel": "function"
+      "authLevel": "function",
+      "schedule": "0 30 9 * * *"
     },
     {
       "name": "res",
       "type": "http",
       "direction": "out"
     }
-  ]
+  ],
+  "disabled": false
 }
