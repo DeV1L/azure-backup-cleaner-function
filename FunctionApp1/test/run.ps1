@@ -1,7 +1,6 @@
 ﻿$BackupSubsciption = $env:BackupSubsciption
 $BackupResourceGroup = $env:BackupResourceGroup
 $StorageAccountName = $env:StorageAccountName
-$ResourceURI = "https://management.azure.com/"
 $BlobContainers = "staging","live"
 $KeepDays = "-180"
 
@@ -26,6 +25,7 @@ Param(
 #Function: get access token
 function Get-AccessToken 
 {
+	$ResourceURI = "https://management.azure.com/"
     $ApiVersion = "2017-09-01"
     $TokenAuthURI = $env:MSI_ENDPOINT + "?resource=$ResourceURI&api-version=$ApiVersion"
     $TokenResponse = Invoke-RestMethod -Method Get -Headers @{"Secret"="$env:MSI_SECRET"} -Uri $TokenAuthURI
