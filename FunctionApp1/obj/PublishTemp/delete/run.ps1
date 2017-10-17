@@ -32,7 +32,7 @@ function Get-AccessToken
     $TokenResponse.access_token
 }
 
-#Perform auth
+#Get MSI token
 $AccessToken = Get-AccessToken
 
 #Function: get storage account key
@@ -48,17 +48,15 @@ Param(
     $keysResponse = Invoke-RestMethod -Method Post -Headers @{Authorization="Bearer $AccessToken"} -Uri $Uri
     $keysResponse.keys[0].value
 }
-$StorageAccountKey = Get-StorageAccountKey -Subscription $BackupSubsciption -ResourceGroup $env:BackupResourceGroup -StorageAccount $StorageAccountName -AccessToken $AccessToken
-
 
 #Function: get Key Vault access token
 function Get-AccessTokenKeyVault 
 {
-$ResourceURI = "https://vault.azure.net"
-$ApiVersion = "2017-09-01"
-$TokenAuthURI = $env:MSI_ENDPOINT + "?resource=$ResourceURI&api-version=$ApiVersion"
-$TokenResponse = Invoke-RestMethod -Method Get -Headers @{"Secret"="$env:MSI_SECRET"} -Uri $TokenAuthURI
-$TokenResponse.access_token
+	$ResourceURI = "https://vault.azure.net"
+	$ApiVersion = "2017-09-01"
+	$TokenAuthURI = $env:MSI_ENDPOINT + "?resource=$ResourceURI&api-version=$ApiVersion"
+	$TokenResponse = Invoke-RestMethod -Method Get -Headers @{"Secret"="$env:MSI_SECRET"} -Uri $TokenAuthURI
+	$TokenResponse.access_token
 }
 
 #Function: get Key Vault secret
@@ -94,6 +92,7 @@ Param(
 
 
 #Obtain secrets
+$StorageAccountKey = Get-StorageAccountKey -Subscription $BackupSubsciption -ResourceGroup $env:BackupResourceGroup -StorageAccount $StorageAccountName -AccessToken $AccessToken
 $AccessTokenKeyVault = Get-AccessTokenKeyVault
 $From = (Get-KeyVaultSecret -AccessToken $AccessTokenKeyVault -SecretName arkadium-sender-login).value
 $Password = (Get-KeyVaultSecret -AccessToken $AccessTokenKeyVault -SecretName arkadium-sender-password).value
