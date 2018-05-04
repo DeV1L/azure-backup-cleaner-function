@@ -15,9 +15,7 @@ $SMTPPort = "587"
 function Send-Result 
 {
 Param(
-	$Body,
-    $From,
-    $Password
+	$Body
 )
 	$Credentials = New-Object System.Management.Automation.PSCredential -ArgumentList $From, $($Password | ConvertTo-SecureString -AsPlainText -Force) 
 	Send-MailMessage –From $From –To $SendTo –Subject $Subj –Body $Body -SmtpServer $SMTPserver -Credential $Credentials -UseSsl -Port $SMTPPort
@@ -100,7 +98,10 @@ $Password = (Get-KeyVaultSecret -AccessToken $AccessTokenKeyVault -SecretName ar
 #Delete backups
 $Result = Delete-Backups -StorageAccountName $StorageAccountName -StorageAccountKey $StorageAccountKey -Container $BlobContainers
 
+#Write output
 Write-Output $Result
-$Result | ConvertTo-Json >> $res
-[string]$Body = Get-Content $res -Raw 
-Send-Result  -From $From -Password $Password -Body $Body
+$Result = $Result | ConvertTo-Json
+
+#Send report
+[string]$Body = $Result
+Send-Result -Body $Body
